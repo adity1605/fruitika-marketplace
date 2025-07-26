@@ -101,10 +101,10 @@ CREATE TABLE IF NOT EXISTS "CartItem" (
 
 -- Insert sample products
 INSERT INTO "Product" (id, name, price, description, category, image, rating, featured, "inStock") VALUES
-('1', 'Fresh Apples', 4.99, 'Crisp and juicy red apples, perfect for snacking or baking.', 'fruits', '/images/apple.jpg', 4.5, true, true),
-('2', 'Organic Bananas', 2.99, 'Sweet organic bananas, rich in potassium and perfect for smoothies.', 'fruits', '/images/banana.jpg', 4.2, true, true),
-('3', 'Fresh Carrots', 3.49, 'Crunchy orange carrots, great for cooking or raw snacking.', 'vegetables', '/images/carrot.jpg', 4.3, false, true),
-('4', 'Spinach Leaves', 5.99, 'Fresh green spinach leaves, packed with iron and vitamins.', 'vegetables', '/images/spinach.jpg', 4.1, false, true),
-('5', 'Orange Juice', 6.99, 'Freshly squeezed orange juice, 100% natural with no added sugar.', 'beverages', '/images/orange-juice.jpg', 4.6, true, true),
-('6', 'Mixed Berries', 8.99, 'Fresh mixed berries including strawberries, blueberries, and raspberries.', 'fruits', '/images/berries.jpg', 4.8, true, true)
+('1', 'Fresh Apples', 4.99, 'Crisp and juicy red apples, perfect for snacking or baking.', 'fruits', '/placeholder.jpg', 4.5, true, true),
+('2', 'Organic Bananas', 2.99, 'Sweet organic bananas, rich in potassium and perfect for smoothies.', 'fruits', '/placeholder.jpg', 4.2, true, true),
+('3', 'Fresh Carrots', 3.49, 'Crunchy orange carrots, great for cooking or raw snacking.', 'vegetables', '/placeholder.jpg', 4.3, false, true),
+('4', 'Spinach Leaves', 5.99, 'Fresh green spinach leaves, packed with iron and vitamins.', 'vegetables', '/placeholder.jpg', 4.1, false, true),
+('5', 'Orange Juice', 6.99, 'Freshly squeezed orange juice, 100% natural with no added sugar.', 'beverages', '/images/hero-oranges.avif', 4.6, true, true),
+('6', 'Mixed Berries', 8.99, 'Fresh mixed berries including strawberries, blueberries, and raspberries.', 'fruits', '/placeholder.jpg', 4.8, true, true)
 ON CONFLICT (id) DO NOTHING;
