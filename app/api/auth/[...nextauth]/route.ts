@@ -25,57 +25,31 @@ const handler = NextAuth({
           return null
         }
 
-        const user = await prisma.user.findFirst({
-          where: { 
-            email: credentials.email,
-            password: { not: null }
+        // Simple test user for now
+        if (credentials.email === "test@fruitika.com" && credentials.password === "password123") {
+          return {
+            id: "1",
+            email: "test@fruitika.com",
+            name: "Test User",
+            role: "user",
           }
-        })
-
-        if (!user || !user.password) {
-          return null
         }
 
-        const isValidPassword = await bcrypt.compare(credentials.password, user.password)
-
-        if (!isValidPassword) {
-          return null
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        }
+        return null
       }
     })
   ],
   session: {
     strategy: "jwt"
   },
-  debug: process.env.NODE_ENV === "development",
-  events: {
-    async linkAccount({ user, account }) {
-      console.log('Account linked:', { userId: user.id, provider: account.provider })
-    },
-    async signIn({ user, account, profile, isNewUser }) {
-      console.log('Sign in event:', { 
-        userId: user.id, 
-        provider: account?.provider, 
-        isNewUser,
-        email: user.email 
-      })
-    }
-  },
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
-        // For now, just allow all Google OAuth sign-ins without database interaction
-        if (account?.provider === "google") {
-          console.log("Google OAuth sign in:", user.email)
-          return true
-        }
+        // Allow all sign-ins for now
+        console.log("Sign in attempt:", { 
+          email: user.email, 
+          provider: account?.provider 
+        })
         return true
       } catch (error) {
         console.error("SignIn callback error:", error)
@@ -84,6 +58,7 @@ const handler = NextAuth({
     },
     async redirect({ url, baseUrl }) {
       // Handle redirects properly
+      console.log("Redirect callback:", { url, baseUrl })
       if (url.startsWith("/")) return `${baseUrl}${url}`
       if (url.startsWith(baseUrl)) return url
       return baseUrl
@@ -104,9 +79,6 @@ const handler = NextAuth({
         session.user.role = (token.role as string) || 'user'
         session.user.email = token.email as string
         session.user.name = token.name as string
-        
-        // For now, don't try to connect to database in session callback
-        // This will be fixed once we move to a proper database solution
       }
       return session
     }
