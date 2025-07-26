@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db'
 export async function GET(request: NextRequest) {
   try {
     console.log('Products API called, DATABASE_URL exists:', !!process.env.DATABASE_URL)
+    console.log('Serving original SQLite products with Unsplash images')
     
     // Check if database is available
     if (!process.env.DATABASE_URL) {
