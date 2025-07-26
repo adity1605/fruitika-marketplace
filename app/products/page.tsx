@@ -199,7 +199,7 @@ export default function ProductsPage() {
               <Card className="border-[#8FBC8F]/20 hover:shadow-lg transition-all duration-300 group overflow-hidden h-full flex flex-col">
                 <div className="relative overflow-hidden">
                   <Image
-                    src={product.image || "/placeholder.svg"}
+                    src={product.image || "/placeholder.jpg"}
                     alt={product.name}
                     width={300}
                     height={300}

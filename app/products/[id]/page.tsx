@@ -86,7 +86,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     const productWithDefaults: ProductWithDefaults = {
     ...(product || { id: '', name: '', price: 0 }),
     rating: product?.rating || 4.5,
-    images: product?.images || ["/placeholder.svg"],
+    images: product?.images || ["/placeholder.jpg"],
     reviews: 156,
     features: [
       "100% Organic and pesticide-free",
@@ -158,7 +158,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <div className="relative overflow-hidden rounded-lg bg-[#fefcf5] shadow-sm">
               <Image
-                src={productWithDefaults.images[selectedImage] || "/placeholder.svg"}
+                src={productWithDefaults.images[selectedImage] || "/placeholder.jpg"}
                 alt={productWithDefaults.name}
                 width={500}
                 height={500}
@@ -179,7 +179,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   }`}
                 >
                   <Image
-                    src={image || "/placeholder.svg"}
+                    src={image || "/placeholder.jpg"}
                     alt={`${productWithDefaults.name} ${index + 1}`}
                     width={100}
                     height={100}
