@@ -1,9 +1,10 @@
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
-import CredentialsProvider from "next-auth/providers/credentials"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "@/lib/db"
-import bcrypt from "bcryptjs"
+// Temporarily disabled database imports
+// import CredentialsProvider from "next-auth/providers/credentials"
+// import { PrismaAdapter } from "@auth/prisma-adapter"
+// import { prisma } from "@/lib/db"
+// import bcrypt from "bcryptjs"
 
 const handler = NextAuth({
   // Remove database adapter for now to fix OAuth issues
@@ -14,42 +15,43 @@ const handler = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    CredentialsProvider({
-      name: "credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
+    // Temporarily disable credentials provider to avoid database issues
+    // CredentialsProvider({
+    //   name: "credentials",
+    //   credentials: {
+    //     email: { label: "Email", type: "email" },
+    //     password: { label: "Password", type: "password" }
+    //   },
+    //   async authorize(credentials) {
+    //     if (!credentials?.email || !credentials?.password) {
+    //       return null
+    //     }
 
-        const user = await prisma.user.findFirst({
-          where: { 
-            email: credentials.email,
-            password: { not: null }
-          }
-        })
+    //     const user = await prisma.user.findFirst({
+    //       where: { 
+    //         email: credentials.email,
+    //         password: { not: null }
+    //       }
+    //     })
 
-        if (!user || !user.password) {
-          return null
-        }
+    //     if (!user || !user.password) {
+    //       return null
+    //     }
 
-        const isValidPassword = await bcrypt.compare(credentials.password, user.password)
+    //     const isValidPassword = await bcrypt.compare(credentials.password, user.password)
 
-        if (!isValidPassword) {
-          return null
-        }
+    //     if (!isValidPassword) {
+    //       return null
+    //     }
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        }
-      }
-    })
+    //     return {
+    //       id: user.id,
+    //       email: user.email,
+    //       name: user.name,
+    //       role: user.role,
+    //     }
+    //   }
+    // })
   ],
   session: {
     strategy: "jwt"
@@ -71,32 +73,11 @@ const handler = NextAuth({
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
-        // Allow sign in for all providers
+        // For now, just allow all Google OAuth sign-ins without database interaction
         if (account?.provider === "google") {
-          // For Google OAuth, try to create/update user in database
-          try {
-            const existingUser = await prisma.user.findUnique({
-              where: { email: user.email! }
-            })
-
-            if (!existingUser) {
-              // Create new user
-              await prisma.user.create({
-                data: {
-                  email: user.email!,
-                  name: user.name || '',
-                  image: user.image,
-                  role: 'user'
-                }
-              })
-            }
-          } catch (dbError) {
-            console.error("Database error during sign in:", dbError)
-            // Continue with sign in even if database fails
-          }
+          console.log("Google OAuth sign in:", user.email)
           return true
         }
-        // For credentials provider
         return true
       } catch (error) {
         console.error("SignIn callback error:", error)
