@@ -6,6 +6,10 @@ export async function GET(request: NextRequest) {
     console.log('Products API called, DATABASE_URL exists:', !!process.env.DATABASE_URL)
     console.log('Serving original SQLite products with Unsplash images')
     
+    // Force return mock data to show original products
+    console.log('Forcing mock data to show original products with Unsplash images')
+    return NextResponse.json(getMockProducts())
+    
     // Check if database is available
     if (!process.env.DATABASE_URL) {
       console.error('DATABASE_URL not found, returning mock data')
