@@ -9,14 +9,29 @@ export async function GET(
     const { id } = await params
     console.log('Single product API called for ID:', id)
     
-    // Check if database is available
+    // Add cache busting headers
+    const headers = {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    }
+    
+    // Force return mock data to show original products (bypass database cache issues)
+    const mockProduct = getMockProductById(id)
+    if (!mockProduct) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404, headers })
+    }
+    return NextResponse.json(mockProduct, { headers })
+    
+    /*
+    // Database logic (temporarily disabled due to caching)
     if (!process.env.DATABASE_URL) {
       console.error('DATABASE_URL not found, returning mock product')
       const mockProduct = getMockProductById(id)
       if (!mockProduct) {
-        return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+        return NextResponse.json({ error: 'Product not found' }, { status: 404, headers })
       }
-      return NextResponse.json(mockProduct)
+      return NextResponse.json(mockProduct, { headers })
     }
 
     const product = await prisma.product.findUnique({
@@ -27,20 +42,34 @@ export async function GET(
       console.log('Product not found in database, trying mock data')
       const mockProduct = getMockProductById(id)
       if (!mockProduct) {
-        return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+        return NextResponse.json({ error: 'Product not found' }, { status: 404, headers })
       }
-      return NextResponse.json(mockProduct)
+      return NextResponse.json(mockProduct, { headers })
     }
 
-    return NextResponse.json(product)
+    return NextResponse.json(product, { headers })
+    */
   } catch (error) {
     console.error('Error fetching product:', error)
     console.log('Database error, trying mock data for ID:', await params.then(p => p.id))
     const mockProduct = getMockProductById(await params.then(p => p.id))
     if (!mockProduct) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Product not found' }, { 
+        status: 404,
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      })
     }
-    return NextResponse.json(mockProduct)
+    return NextResponse.json(mockProduct, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   }
 }
 

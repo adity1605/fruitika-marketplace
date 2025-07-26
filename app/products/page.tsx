@@ -43,21 +43,22 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true)
+      const params = new URLSearchParams()
+      if (selectedCategory !== 'all') params.append('category', selectedCategory)
+      if (searchTerm) params.append('search', searchTerm)
+      if (sortBy) params.append('sortBy', sortBy)
       
-      // Temporarily use test endpoint to show original products with Unsplash images
-      const response = await fetch(`/api/test-products`)
+      // Add cache busting parameter
+      params.append('t', Date.now().toString())
+      
+      const response = await fetch(`/api/products?${params}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      })
       const data = await response.json()
-      setProducts(data.products || data) // Handle both wrapped and direct product arrays
-      
-      // Original API call (temporarily disabled due to caching issues)
-      // const params = new URLSearchParams()
-      // if (selectedCategory !== 'all') params.append('category', selectedCategory)
-      // if (searchTerm) params.append('search', searchTerm)
-      // if (sortBy) params.append('sortBy', sortBy)
-      // const response = await fetch(`/api/products?${params}`)
-      // const data = await response.json()
-      // setProducts(data)
-      
+      setProducts(data)
     } catch (error) {
       console.error('Error fetching products:', error)
     } finally {
