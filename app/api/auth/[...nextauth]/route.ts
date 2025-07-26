@@ -6,7 +6,8 @@ import { prisma } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
 const handler = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  // Remove database adapter for now to fix OAuth issues
+  // adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
@@ -72,7 +73,27 @@ const handler = NextAuth({
       try {
         // Allow sign in for all providers
         if (account?.provider === "google") {
-          // For Google OAuth, always allow sign in
+          // For Google OAuth, try to create/update user in database
+          try {
+            const existingUser = await prisma.user.findUnique({
+              where: { email: user.email! }
+            })
+
+            if (!existingUser) {
+              // Create new user
+              await prisma.user.create({
+                data: {
+                  email: user.email!,
+                  name: user.name || '',
+                  image: user.image,
+                  role: 'user'
+                }
+              })
+            }
+          } catch (dbError) {
+            console.error("Database error during sign in:", dbError)
+            // Continue with sign in even if database fails
+          }
           return true
         }
         // For credentials provider
@@ -89,9 +110,12 @@ const handler = NextAuth({
       return baseUrl
     },
     async jwt({ token, user, account }) {
+      // Include user info in JWT token
       if (user) {
-        token.role = user.role
+        token.role = user.role || 'user'
         token.id = user.id
+        token.email = user.email
+        token.name = user.name
       }
       return token
     },
@@ -99,23 +123,11 @@ const handler = NextAuth({
       if (token && session.user) {
         session.user.id = (token.id as string) || (token.sub as string)
         session.user.role = (token.role as string) || 'user'
+        session.user.email = token.email as string
+        session.user.name = token.name as string
         
-        try {
-          // Get fresh user data from database
-          const dbUser = await prisma.user.findUnique({
-            where: { id: session.user.id }
-          })
-          
-          if (dbUser) {
-            session.user.name = dbUser.name
-            session.user.email = dbUser.email
-            session.user.image = dbUser.image
-            session.user.role = dbUser.role
-          }
-        } catch (error) {
-          console.error("Session callback database error:", error)
-          // Continue with existing session data if database fails
-        }
+        // For now, don't try to connect to database in session callback
+        // This will be fixed once we move to a proper database solution
       }
       return session
     }
