@@ -6,11 +6,15 @@ import Image from "next/image"
 import { Menu, X, User, LogOut, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/AuthContext"
+import { useCart } from "@/lib/CartContext"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function Navigation() {
   const { user, logout, isAuthenticated } = useAuth()
+  const { getTotalItems } = useCart()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  
+  const cartItemCount = getTotalItems()
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -51,8 +55,13 @@ export default function Navigation() {
           {/* Desktop Auth Buttons */}
           <div className="hidden lg:flex items-center space-x-3">
             <Link href="/cart">
-              <Button variant="ghost" size="sm" className="text-[#2F5233]">
+              <Button variant="ghost" size="sm" className="text-[#2F5233] relative">
                 <ShoppingCart className="w-4 h-4" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
               </Button>
             </Link>
             
@@ -133,9 +142,14 @@ export default function Navigation() {
                 
                 <div className="flex flex-col space-y-3 pt-4 border-t border-[#8FBC8F]/20">
                   <Link href="/cart" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full justify-start border-[#8FBC8F] text-[#2F5233]">
+                    <Button variant="outline" className="w-full justify-start border-[#8FBC8F] text-[#2F5233] relative">
                       <ShoppingCart className="w-4 h-4 mr-2" />
                       Cart
+                      {cartItemCount > 0 && (
+                        <span className="ml-auto bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">
+                          {cartItemCount}
+                        </span>
+                      )}
                     </Button>
                   </Link>
                   

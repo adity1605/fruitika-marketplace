@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
-import jwt from 'jsonwebtoken'
+import { simpleDB } from '@/lib/simpleDB'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,28 +12,20 @@ export async function POST(request: NextRequest) {
 
     console.log('Creating order for user:', userId)
 
-    const order = await prisma.order.create({
-      data: {
-        userId,
-        total,
-        subtotal,
-        shipping,
-        status: 'confirmed',
-        items: {
-          create: items.map((item: any) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price
-          }))
-        }
-      },
-      include: {
-        items: {
-          include: {
-            product: true
-          }
-        }
-      }
+    const order = simpleDB.orders.create({
+      userId,
+      total,
+      subtotal,
+      shipping,
+      status: 'confirmed',
+      items: items.map((item: any) => ({
+        id: item.productId,
+        name: item.name || 'Product',
+        quantity: item.quantity,
+        price: item.price
+      })),
+      customerInfo: customerInfo || {},
+      paymentId: paymentId || undefined
     })
 
     return NextResponse.json({ orderId: order.id, order })

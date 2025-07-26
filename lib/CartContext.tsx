@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 
 interface CartItem {
   id: number
@@ -24,6 +24,32 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
+  const [isLoaded, setIsLoaded] = useState(false)
+
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedCart = localStorage.getItem('fruitika-cart')
+      if (savedCart) {
+        setItems(JSON.parse(savedCart))
+      }
+    } catch (error) {
+      console.error('Error loading cart from localStorage:', error)
+    } finally {
+      setIsLoaded(true)
+    }
+  }, [])
+
+  // Save cart to localStorage whenever items change
+  useEffect(() => {
+    if (isLoaded) {
+      try {
+        localStorage.setItem('fruitika-cart', JSON.stringify(items))
+      } catch (error) {
+        console.error('Error saving cart to localStorage:', error)
+      }
+    }
+  }, [items, isLoaded])
 
   const addToCart = (newItem: Omit<CartItem, "quantity"> & { quantity?: number }) => {
     setItems(currentItems => {
@@ -65,6 +91,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => {
     setItems([])
+    try {
+      localStorage.removeItem('fruitika-cart')
+    } catch (error) {
+      console.error('Error clearing cart from localStorage:', error)
+    }
   }
 
   return (

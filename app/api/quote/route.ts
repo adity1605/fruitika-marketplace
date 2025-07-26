@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { simpleDB } from '@/lib/simpleDB'
 import nodemailer from 'nodemailer'
 
 export async function GET() {
   try {
-    const quotes = await prisma.quote.findMany({
-      orderBy: { createdAt: 'desc' }
-    })
+    const quotes = simpleDB.quotes.getAll()
     return NextResponse.json(quotes)
   } catch (error) {
     console.error('Error fetching quotes:', error)
@@ -26,29 +24,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Save to database
-    const quote = await prisma.quote.create({
-      data: {
-        name,
-        email,
-        phone: phone || null,
-        company: company || null,
-        product,
-        quantity,
-        destination: deliveryLocation,
-        message: message || null
-      }
+    // Save to simpleDB
+    const quote = simpleDB.quotes.create({
+      name,
+      email,
+      phone: phone || undefined,
+      company: company || undefined,
+      product,
+      quantity,
+      deliveryLocation,
+      message: message || undefined
     })
 
-    // Send email notification
+    // Send email notification (only if email config exists)
     try {
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS
-        }
-      })
+      if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+          }
+        })
 
       // Email to admin
       await transporter.sendMail({

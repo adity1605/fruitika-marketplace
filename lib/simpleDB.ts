@@ -35,6 +35,44 @@ interface Order {
   paymentId?: string
 }
 
+interface Contact {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  company?: string
+  message: string
+  createdAt: string
+}
+
+interface Quote {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  company?: string
+  product: string
+  quantity: string
+  deliveryLocation: string
+  message?: string
+  status: string
+  createdAt: string
+}
+
+interface Career {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  position: string
+  experience: string
+  location?: string
+  coverLetter?: string
+  resumeUrl?: string
+  status: string
+  createdAt: string
+}
+
 // In-memory storage
 let users: User[] = [
   {
@@ -125,6 +163,9 @@ let products: Product[] = [
 ]
 
 let orders: Order[] = []
+let contacts: Contact[] = []
+let quotes: Quote[] = []
+let careers: Career[] = []
 
 // Database functions
 export const simpleDB = {
@@ -170,5 +211,52 @@ export const simpleDB = {
     findById: (id: string) => orders.find(o => o.id === id),
     getByUserId: (userId: string) => orders.filter(o => o.userId === userId),
     getAll: () => orders
+  },
+
+  // Contacts
+  contacts: {
+    create: (contactData: Omit<Contact, 'id' | 'createdAt'>) => {
+      const newContact: Contact = {
+        ...contactData,
+        id: `contact_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        createdAt: new Date().toISOString()
+      }
+      contacts.push(newContact)
+      return newContact
+    },
+    getAll: () => contacts,
+    findById: (id: string) => contacts.find(c => c.id === id)
+  },
+
+  // Quotes
+  quotes: {
+    create: (quoteData: Omit<Quote, 'id' | 'createdAt' | 'status'>) => {
+      const newQuote: Quote = {
+        ...quoteData,
+        id: `quote_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      }
+      quotes.push(newQuote)
+      return newQuote
+    },
+    getAll: () => quotes,
+    findById: (id: string) => quotes.find(q => q.id === id)
+  },
+
+  // Careers
+  careers: {
+    create: (careerData: Omit<Career, 'id' | 'createdAt' | 'status'>) => {
+      const newCareer: Career = {
+        ...careerData,
+        id: `career_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      }
+      careers.push(newCareer)
+      return newCareer
+    },
+    getAll: () => careers,
+    findById: (id: string) => careers.find(c => c.id === id)
   }
 }

@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { simpleDB } from '@/lib/simpleDB'
 import nodemailer from 'nodemailer'
 
 export async function GET() {
   try {
-    const careers = await prisma.career.findMany({
-      orderBy: { createdAt: 'desc' }
-    })
+    const careers = simpleDB.careers.getAll()
     return NextResponse.json(careers)
   } catch (error) {
     console.error('Error fetching careers:', error)
@@ -43,29 +41,28 @@ export async function POST(request: NextRequest) {
       resumeName = resume.name
     }
 
-    // Save to database
-    const career = await prisma.career.create({
-      data: {
-        name,
-        email,
-        phone: phone || null,
-        position,
-        experience,
-        location: location || null,
-        coverLetter: coverLetter || null,
-        resumeUrl: resumeName || null
-      }
+    // Save to simpleDB  
+    const career = simpleDB.careers.create({
+      name,
+      email,
+      phone: phone || undefined,
+      position,
+      experience,
+      location: location || undefined,
+      coverLetter: coverLetter || undefined,
+      resumeUrl: resumeName || undefined
     })
 
-    // Send email notification
+    // Send email notification (only if email config exists)
     try {
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS
-        }
-      })
+      if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+          }
+        })
 
       const attachments = []
       if (resumeBase64 && resumeName) {
@@ -115,12 +112,13 @@ export async function POST(request: NextRequest) {
           <br>
           <p>Best regards,<br>Fruitika HR Team</p>
         `
-      })
+        })
+      } else {
+        console.log('Email configuration not found, skipping email sending')
+      }
     } catch (emailError) {
       console.error('Email sending failed:', emailError)
-    }
-
-    return NextResponse.json({ 
+    }    return NextResponse.json({ 
       success: true, 
       message: 'Application submitted successfully! We will review your application and get back to you soon.',
       id: career.id 
