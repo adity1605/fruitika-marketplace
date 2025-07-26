@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
 const handler = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: process.env.DATABASE_URL ? PrismaAdapter(prisma) : undefined,
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
