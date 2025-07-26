@@ -43,15 +43,9 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      const params = new URLSearchParams()
-      if (selectedCategory !== 'all') params.append('category', selectedCategory)
-      if (searchTerm) params.append('search', searchTerm)
-      if (sortBy) params.append('sortBy', sortBy)
       
-      // Add cache busting parameter
-      params.append('t', Date.now().toString())
-      
-      const response = await fetch(`/api/products?${params}`, {
+      // Use new cache-busted endpoint to show original products
+      const response = await fetch(`/api/products-new?t=${Date.now()}`, {
         cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache'

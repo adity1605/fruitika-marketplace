@@ -52,12 +52,17 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const fetchProduct = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/products/${resolvedParams.id}`)
+      const response = await fetch(`/api/products-new/${resolvedParams.id}?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      })
       const data = await response.json()
       if (response.ok) {
         setProduct({
           ...data,
-          images: JSON.parse(data.images || '[]')
+          images: data.images || [data.image] // Use images array or fallback to single image
         })
       }
     } catch (error) {
