@@ -4,15 +4,14 @@ import { useState, useMemo, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Search, Filter, Star, ShoppingCart, Menu, X } from "lucide-react"
+import { Search, Filter, Star, ShoppingCart } from "lucide-react"
 import { useCart } from "@/lib/CartContext"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
-
+import Navigation from "@/components/Navigation"
 
 interface Product {
   id: string
@@ -28,17 +27,16 @@ interface Product {
 }
 
 export default function ProductsPage() {
-  const { getTotalItems } = useCart()
+  const { addToCart } = useCart()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [sortBy, setSortBy] = useState("featured")
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     fetchProducts()
-  }, [selectedCategory, sortBy, searchTerm])
+  }, [])
 
   const fetchProducts = async () => {
     try {
