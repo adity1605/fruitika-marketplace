@@ -1,0 +1,176 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  password      String?
+  role          String    @default("user")
+  image         String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  orders    Order[]
+  cartItems CartItem[]
+  accounts  Account[]
+  sessions  Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  
+  @@unique([identifier, token])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  category    String
+  image       String
+  images      String
+  rating      Float    @default(4.5)
+  inStock     Boolean  @default(true)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  userId        String
+  status        String      @default("pending")
+  total         Float
+  subtotal      Float
+  shipping      Float       @default(15.99)
+  trackingId    String?     @unique
+  shippingDate  DateTime?
+  deliveryDate  DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  user          User        @relation(fields: [userId], references: [id])
+  items         OrderItem[]
+  trackingLogs  TrackingLog[]
+}
+
+model TrackingLog {
+  id          String   @id @default(cuid())
+  orderId     String
+  status      String
+  location    String?
+  description String
+  timestamp   DateTime @default(now())
+  
+  order       Order    @relation(fields: [orderId], references: [id])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+  
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  userId    String
+  productId String
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user      User    @relation(fields: [userId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+  
+  @@unique([userId, productId])
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model Quote {
+  id               String   @id @default(cuid())
+  name             String
+  email            String
+  company          String?
+  phone            String?
+  product          String
+  quantity         String
+  destination      String
+  message          String?
+  status           String   @default("pending")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Career {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  position    String
+  experience  String
+  location    String?
+  resumeUrl   String?
+  coverLetter String?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
