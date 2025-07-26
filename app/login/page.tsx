@@ -60,14 +60,10 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     try {
       console.log('Starting Google sign in...')
-      const result = await signIn('google', { 
-        callbackUrl: '/',
-        redirect: false 
+      // Use normal redirect flow for Google OAuth
+      await signIn('google', { 
+        callbackUrl: '/' 
       })
-      console.log('Google sign in result:', result)
-      if (result?.error) {
-        setError('Google sign in failed: ' + result.error)
-      }
     } catch (error) {
       console.error('Google sign in error:', error)
       setError('Google sign in failed')

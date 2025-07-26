@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs"
 
 const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -52,18 +53,40 @@ const handler = NextAuth({
   session: {
     strategy: "jwt"
   },
+  debug: process.env.NODE_ENV === "development",
   events: {
     async linkAccount({ user, account }) {
       console.log('Account linked:', { userId: user.id, provider: account.provider })
+    },
+    async signIn({ user, account, profile, isNewUser }) {
+      console.log('Sign in event:', { 
+        userId: user.id, 
+        provider: account?.provider, 
+        isNewUser,
+        email: user.email 
+      })
     }
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      return true
+      try {
+        // Allow sign in for all providers
+        if (account?.provider === "google") {
+          // For Google OAuth, always allow sign in
+          return true
+        }
+        // For credentials provider
+        return true
+      } catch (error) {
+        console.error("SignIn callback error:", error)
+        return true // Allow sign in even if there's an error
+      }
     },
     async redirect({ url, baseUrl }) {
+      // Handle redirects properly
+      if (url.startsWith("/")) return `${baseUrl}${url}`
       if (url.startsWith(baseUrl)) return url
-      return baseUrl + '/'
+      return baseUrl
     },
     async jwt({ token, user, account }) {
       if (user) {
@@ -74,18 +97,24 @@ const handler = NextAuth({
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id || token.sub!
-        session.user.role = token.role
+        session.user.id = (token.id as string) || (token.sub as string)
+        session.user.role = (token.role as string) || 'user'
         
-        // Get fresh user data from database
-        const dbUser = await prisma.user.findUnique({
-          where: { id: session.user.id }
-        })
-        
-        if (dbUser) {
-          session.user.name = dbUser.name
-          session.user.email = dbUser.email
-          session.user.image = dbUser.image
+        try {
+          // Get fresh user data from database
+          const dbUser = await prisma.user.findUnique({
+            where: { id: session.user.id }
+          })
+          
+          if (dbUser) {
+            session.user.name = dbUser.name
+            session.user.email = dbUser.email
+            session.user.image = dbUser.image
+            session.user.role = dbUser.role
+          }
+        } catch (error) {
+          console.error("Session callback database error:", error)
+          // Continue with existing session data if database fails
         }
       }
       return session
