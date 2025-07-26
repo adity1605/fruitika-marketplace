@@ -97,12 +97,18 @@ export default function LoginPage() {
     try {
       console.log('Starting Google sign in...')
       setIsLoading(true)
-      await signIn('google', { 
-        callbackUrl: '/' 
+      setError("") // Clear any existing errors
+      
+      // Use NextAuth signIn with more specific options
+      const result = await signIn('google', { 
+        callbackUrl: '/',
+        redirect: true
       })
+      
+      console.log('Google sign in result:', result)
     } catch (error) {
       console.error('Google sign in error:', error)
-      setError('Google sign in failed')
+      setError('Google sign in failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
