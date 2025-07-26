@@ -59,11 +59,13 @@ export default function CheckoutPage() {
         try {
           setLoading(true)
           const orderData = {
-            userId: user?.id,
+            userId: user?.id || 'guest',
             items: items.map(item => ({
               productId: item.id,
               quantity: item.quantity,
-              price: item.price
+              price: item.price,
+              name: item.name,
+              image: item.image
             })),
             total,
             subtotal,
@@ -72,7 +74,7 @@ export default function CheckoutPage() {
             customerInfo: formData
           }
           
-          const orderResponse = await fetch('/api/orders/create', {
+          const orderResponse = await fetch('/api/orders/create-simple', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(orderData)
