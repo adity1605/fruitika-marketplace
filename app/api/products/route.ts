@@ -3,17 +3,24 @@ import { prisma } from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('Products API called, DATABASE_URL exists:', !!process.env.DATABASE_URL)
+    // Add cache busting headers
+    const headers = {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    }
+    
+    console.log('Products API called with cache busting:', new Date().toISOString())
     console.log('Serving original SQLite products with Unsplash images')
     
-    // Force return mock data to show original products
-    console.log('Forcing mock data to show original products with Unsplash images')
-    return NextResponse.json(getMockProducts())
+    // Return original products immediately (bypass database until cache issue resolved)
+    return NextResponse.json(getMockProducts(), { headers })
     
-    // Check if database is available
+    // Database logic (temporarily disabled due to caching)
+    /*
     if (!process.env.DATABASE_URL) {
       console.error('DATABASE_URL not found, returning mock data')
-      return NextResponse.json(getMockProducts())
+      return NextResponse.json(getMockProducts(), { headers })
     }
 
     const { searchParams } = new URL(request.url)
@@ -59,14 +66,21 @@ export async function GET(request: NextRequest) {
     
     if (products.length === 0) {
       console.log('No products found in database, returning mock data')
-      return NextResponse.json(getMockProducts())
+      return NextResponse.json(getMockProducts(), { headers })
     }
 
-    return NextResponse.json(products)
+    return NextResponse.json(products, { headers })
+    */
   } catch (error) {
     console.error('Error fetching products:', error)
     console.log('Database error, returning mock data')
-    return NextResponse.json(getMockProducts())
+    return NextResponse.json(getMockProducts(), {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   }
 }
 
