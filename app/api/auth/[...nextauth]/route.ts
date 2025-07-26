@@ -1,57 +1,54 @@
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
-// Temporarily disabled database imports
-// import CredentialsProvider from "next-auth/providers/credentials"
-// import { PrismaAdapter } from "@auth/prisma-adapter"
-// import { prisma } from "@/lib/db"
-// import bcrypt from "bcryptjs"
+import CredentialsProvider from "next-auth/providers/credentials"
+import { PrismaAdapter } from "@auth/prisma-adapter"
+import { prisma } from "@/lib/db"
+import bcrypt from "bcryptjs"
 
 const handler = NextAuth({
-  // Remove database adapter for now to fix OAuth issues
-  // adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    // Temporarily disable credentials provider to avoid database issues
-    // CredentialsProvider({
-    //   name: "credentials",
-    //   credentials: {
-    //     email: { label: "Email", type: "email" },
-    //     password: { label: "Password", type: "password" }
-    //   },
-    //   async authorize(credentials) {
-    //     if (!credentials?.email || !credentials?.password) {
-    //       return null
-    //     }
+    CredentialsProvider({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null
+        }
 
-    //     const user = await prisma.user.findFirst({
-    //       where: { 
-    //         email: credentials.email,
-    //         password: { not: null }
-    //       }
-    //     })
+        const user = await prisma.user.findFirst({
+          where: { 
+            email: credentials.email,
+            password: { not: null }
+          }
+        })
 
-    //     if (!user || !user.password) {
-    //       return null
-    //     }
+        if (!user || !user.password) {
+          return null
+        }
 
-    //     const isValidPassword = await bcrypt.compare(credentials.password, user.password)
+        const isValidPassword = await bcrypt.compare(credentials.password, user.password)
 
-    //     if (!isValidPassword) {
-    //       return null
-    //     }
+        if (!isValidPassword) {
+          return null
+        }
 
-    //     return {
-    //       id: user.id,
-    //       email: user.email,
-    //       name: user.name,
-    //       role: user.role,
-    //     }
-    //   }
-    // })
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        }
+      }
+    })
   ],
   session: {
     strategy: "jwt"
