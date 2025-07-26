@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
+import { simpleDB } from '@/lib/simpleDB'
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,12 +12,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User authentication or customer info required' }, { status: 401 })
     }
 
-    // Generate a unique order ID
-    const orderId = `ORD_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    
-    // Create a simple order object without database
-    const order = {
-      id: orderId,
+    // Create order using simple database
+    const order = simpleDB.orders.create({
       userId: userId || 'guest',
       total,
       subtotal,
@@ -32,16 +28,11 @@ export async function POST(request: NextRequest) {
         price: item.price,
         name: item.name || `Product ${item.productId}`,
         image: item.image || '/placeholder.jpg'
-      })),
-      createdAt: new Date().toISOString(),
-      estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
-    }
+      }))
+    })
 
-    console.log('Order created successfully:', orderId)
+    console.log('Order created successfully:', order.id)
 
-    // In a real app, you'd save this to a database
-    // For now, we'll just return the order data
-    
     return NextResponse.json({ 
       success: true,
       orderId: order.id, 
