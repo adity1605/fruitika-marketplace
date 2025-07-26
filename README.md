@@ -1,6 +1,6 @@
 # 🍎 Fruitika - Premium Fruit E-commerce Platform
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/getfruitika)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/adityajain71/getfruitika)
 
 A modern, full-stack e-commerce platform for premium fruit exports built with Next.js 15, TypeScript, and Prisma.
 
@@ -34,7 +34,7 @@ Visit the live website: [https://getfruitika.me](https://getfruitika.me)
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/getfruitika.git
+   git clone https://github.com/adityajain71/getfruitika.git
    cd getfruitika
    ```
 
