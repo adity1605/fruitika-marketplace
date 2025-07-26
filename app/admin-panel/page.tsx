@@ -114,11 +114,15 @@ export default function AdminPanelPage() {
         setApplications(Array.isArray(careersData) ? careersData : [])
       }
 
-      // Fetch orders
+      // Fetch orders (all orders for admin)
       const ordersRes = await fetch('/api/orders')
       if (ordersRes.ok) {
         const ordersData = await ordersRes.json()
-        setOrders(Array.isArray(ordersData.orders) ? ordersData.orders : [])
+        if (ordersData.success && Array.isArray(ordersData.orders)) {
+          setOrders(ordersData.orders)
+        } else {
+          setOrders([])
+        }
       }
     } catch (error) {
       console.error('Failed to fetch data:', error)
@@ -337,8 +341,8 @@ export default function AdminPanelPage() {
                   <div key={order.id} className="border-b border-[#8FBC8F]/20 pb-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h4 className="font-semibold text-[#2F5233]">Order #{order.id.slice(-8)}</h4>
-                        <p className="text-sm text-[#5A6B5D]">{order.user.name} ({order.user.email})</p>
+                        <h4 className="font-semibold text-[#2F5233]">Order #{order.id}</h4>
+                        <p className="text-sm text-[#5A6B5D]">User ID: {order.userId}</p>
                       </div>
                       <div className="text-right">
                         <Badge variant="outline" className="mb-1">{order.status}</Badge>
@@ -349,7 +353,7 @@ export default function AdminPanelPage() {
                     </div>
                     <div className="text-sm text-[#5A6B5D]">
                       <p><strong>Total:</strong> ${order.total.toFixed(2)}</p>
-                      <p><strong>Items:</strong> {order.items.map(item => `${item.product.name} (${item.quantity})`).join(', ')}</p>
+                      <p><strong>Items:</strong> {order.items.map((item: any) => `${item.name} (${item.quantity})`).join(', ')}</p>
                     </div>
                   </div>
                 ))

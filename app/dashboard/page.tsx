@@ -34,13 +34,19 @@ export default function DashboardPage() {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('/api/orders')
-      if (response.ok) {
-        const data = await response.json()
+      setLoading(true)
+      const response = await fetch(`/api/orders?userId=${user.id}`)
+      const data = await response.json()
+      
+      if (data.success) {
         setOrders(data.orders || [])
+      } else {
+        console.error('Failed to fetch orders:', data.error)
+        setOrders([])
       }
     } catch (error) {
-      console.error('Failed to fetch orders:', error)
+      console.error('Error fetching orders:', error)
+      setOrders([])
     } finally {
       setLoading(false)
     }
@@ -121,8 +127,8 @@ export default function DashboardPage() {
                     {orders.map((order) => (
                       <div key={order.id} className="flex items-center justify-between p-4 border border-[#8FBC8F]/20 rounded-lg">
                         <div>
-                          <p className="font-semibold text-[#2F5233]">{order.items?.[0]?.product?.name || 'Order'}</p>
-                          <p className="text-xs text-[#5A6B5D] mb-1">{order.id}</p>
+                          <p className="font-semibold text-[#2F5233]">Order #{order.id}</p>
+                          <p className="text-sm text-[#5A6B5D]">{order.items.length} item{order.items.length > 1 ? 's' : ''}</p>
                           <p className="text-sm text-[#5A6B5D]">{new Date(order.createdAt).toLocaleDateString()}</p>
                         </div>
                         <div className="text-center">
