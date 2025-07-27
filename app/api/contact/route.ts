@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 
-// Simple in-memory storage for contacts
+// Simple in-memory storage for contacts - FIXED v2.0
 interface Contact {
   id: string
   name: string
