@@ -1,11 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { simpleDB } from '../../../lib/simpleDB'
 import nodemailer from 'nodemailer'
+
+// Simple in-memory storage for quotes
+interface Quote {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  company?: string
+  product: string
+  quantity: string
+  deliveryLocation: string
+  message?: string
+  status: string
+  createdAt: string
+}
+
+// In-memory storage
+let quotes: Quote[] = []
+
+const createQuote = (quoteData: Omit<Quote, 'id' | 'createdAt' | 'status'>) => {
+  const newQuote: Quote = {
+    ...quoteData,
+    id: `quote_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    status: 'pending',
+    createdAt: new Date().toISOString()
+  }
+  quotes.push(newQuote)
+  return newQuote
+}
+
+const getAllQuotes = () => quotes
 
 export async function GET() {
   try {
-    const quotes = simpleDB.quotes.getAll()
-    return NextResponse.json(quotes)
+    const allQuotes = getAllQuotes()
+    return NextResponse.json(allQuotes)
   } catch (error) {
     console.error('Error fetching quotes:', error)
     return NextResponse.json({ error: 'Failed to fetch quotes' }, { status: 500 })
@@ -34,26 +64,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Quote API: Creating quote in simpleDB...')
+    console.log('Quote API: Creating quote in database...')
     
-    // Check if simpleDB and quotes exist
-    if (!simpleDB) {
-      console.error('Quote API: simpleDB is undefined')
-      return NextResponse.json({ error: 'Database error' }, { status: 500 })
-    }
-    
-    if (!simpleDB.quotes) {
-      console.error('Quote API: simpleDB.quotes is undefined')
-      return NextResponse.json({ error: 'Quotes database error' }, { status: 500 })
-    }
-    
-    if (typeof simpleDB.quotes.create !== 'function') {
-      console.error('Quote API: simpleDB.quotes.create is not a function')
-      return NextResponse.json({ error: 'Quotes create function error' }, { status: 500 })
-    }
-    
-    // Save to simpleDB
-    const quote = simpleDB.quotes.create({
+    // Save to database
+    const quote = createQuote({
       name,
       email,
       phone: phone || undefined,

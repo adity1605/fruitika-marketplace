@@ -1,11 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { simpleDB } from '../../../lib/simpleDB'
 import nodemailer from 'nodemailer'
+
+// Simple in-memory storage for careers
+interface Career {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  position: string
+  experience: string
+  location?: string
+  coverLetter?: string
+  resumeUrl?: string
+  status: string
+  createdAt: string
+}
+
+// In-memory storage
+let careers: Career[] = []
+
+const createCareer = (careerData: Omit<Career, 'id' | 'createdAt' | 'status'>) => {
+  const newCareer: Career = {
+    ...careerData,
+    id: `career_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    status: 'pending',
+    createdAt: new Date().toISOString()
+  }
+  careers.push(newCareer)
+  return newCareer
+}
+
+const getAllCareers = () => careers
 
 export async function GET() {
   try {
-    const careers = simpleDB.careers.getAll()
-    return NextResponse.json(careers)
+    const allCareers = getAllCareers()
+    return NextResponse.json(allCareers)
   } catch (error) {
     console.error('Error fetching careers:', error)
     return NextResponse.json({ error: 'Failed to fetch careers' }, { status: 500 })
@@ -41,8 +71,8 @@ export async function POST(request: NextRequest) {
       resumeName = resume.name
     }
 
-    // Save to simpleDB  
-    const career = simpleDB.careers.create({
+    // Save to database  
+    const career = createCareer({
       name,
       email,
       phone: phone || undefined,

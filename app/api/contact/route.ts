@@ -1,6 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { simpleDB } from '../../../lib/simpleDB'
 import nodemailer from 'nodemailer'
+
+// Simple in-memory storage for contacts
+interface Contact {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  company?: string
+  message: string
+  createdAt: string
+}
+
+// In-memory storage
+let contacts: Contact[] = []
+
+const createContact = (contactData: Omit<Contact, 'id' | 'createdAt'>) => {
+  const newContact: Contact = {
+    ...contactData,
+    id: `contact_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    createdAt: new Date().toISOString()
+  }
+  contacts.push(newContact)
+  return newContact
+}
+
+const getAllContacts = () => contacts
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,9 +43,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Contact API: Creating contact in simpleDB...')
-    // Save to simpleDB
-    const contact = simpleDB.contacts.create({
+    console.log('Contact API: Creating contact in database...')
+    // Save to database
+    const contact = createContact({
       name,
       email,
       phone: phone || undefined,
@@ -102,8 +127,8 @@ export async function POST(request: NextRequest) {
 // GET endpoint for admin to retrieve contacts
 export async function GET() {
   try {
-    const contacts = simpleDB.contacts.getAll()
-    return NextResponse.json(contacts)
+    const allContacts = getAllContacts()
+    return NextResponse.json(allContacts)
   } catch (error) {
     console.error('Error fetching contacts:', error)
     return NextResponse.json(
