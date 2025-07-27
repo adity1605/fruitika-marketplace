@@ -1,5 +1,7 @@
 "use client"
 
+"use client"
+
 import { useState } from "react"
 import Link from "next/link"
 import { ArrowLeft, Calculator, Send } from "lucide-react"
@@ -35,17 +37,22 @@ export default function QuotePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      console.log('Submitting quote form:', formData)
       const response = await fetch('/api/quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       })
       
-      if (response.ok) {
+      console.log('Quote API response status:', response.status)
+      const data = await response.json()
+      console.log('Quote API response data:', data)
+      
+      if (response.ok && data.success) {
         setSubmitted(true)
       } else {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-        alert('❌ Failed to submit quote request: ' + (errorData.error || 'Please try again'))
+        console.error('Quote submission failed:', data)
+        alert('❌ Failed to submit quote request: ' + (data.error || 'Please try again'))
       }
     } catch (error) {
       console.error('Quote submission error:', error)

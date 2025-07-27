@@ -83,7 +83,14 @@ export default function SignupPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-3">
           <Link href="/" className="flex justify-center">
-            <Image src="/images/ChatGPT_Image_Jul_24__2025__04_18_40_PM-removebg-preview.png" alt="Fruitika" width={400} height={120} className="h-32 w-auto mb-2" />
+            <Image 
+              src="/images/ChatGPT_Image_Jul_24__2025__04_18_40_PM-removebg-preview.png" 
+              alt="Fruitika" 
+              width={400} 
+              height={120} 
+              className="h-32 mb-2" 
+              style={{ width: 'auto' }}
+            />
           </Link>
           <h1 className="text-xl font-bold text-[#2F5233]">Create Account</h1>
           <p className="text-sm text-[#5A6B5D]">Join Fruitika today</p>

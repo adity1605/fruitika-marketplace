@@ -14,16 +14,44 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Quote API: Request received')
     const body = await request.json()
+    console.log('Quote API: Body parsed:', { name: body.name, email: body.email, product: body.product })
+    
     const { name, email, phone, company, product, quantity, deliveryLocation, message } = body
 
     if (!name || !email || !product || !quantity || !deliveryLocation) {
+      console.log('Quote API: Validation failed', { 
+        name: !!name, 
+        email: !!email, 
+        product: !!product, 
+        quantity: !!quantity, 
+        deliveryLocation: !!deliveryLocation 
+      })
       return NextResponse.json(
         { error: 'Name, email, product, quantity, and delivery location are required' },
         { status: 400 }
       )
     }
 
+    console.log('Quote API: Creating quote in simpleDB...')
+    
+    // Check if simpleDB and quotes exist
+    if (!simpleDB) {
+      console.error('Quote API: simpleDB is undefined')
+      return NextResponse.json({ error: 'Database error' }, { status: 500 })
+    }
+    
+    if (!simpleDB.quotes) {
+      console.error('Quote API: simpleDB.quotes is undefined')
+      return NextResponse.json({ error: 'Quotes database error' }, { status: 500 })
+    }
+    
+    if (typeof simpleDB.quotes.create !== 'function') {
+      console.error('Quote API: simpleDB.quotes.create is not a function')
+      return NextResponse.json({ error: 'Quotes create function error' }, { status: 500 })
+    }
+    
     // Save to simpleDB
     const quote = simpleDB.quotes.create({
       name,
@@ -35,6 +63,8 @@ export async function POST(request: NextRequest) {
       deliveryLocation,
       message: message || undefined
     })
+    
+    console.log('Quote API: Quote created successfully:', quote.id)
 
     // Send email notification (only if email config exists)
     try {
@@ -84,20 +114,37 @@ export async function POST(request: NextRequest) {
           <br>
           <p>Best regards,<br>Fruitika Sales Team</p>
         `
-      })
+        })
+      } else {
+        console.log('Email configuration not found, skipping email sending')
+      }
     } catch (emailError) {
       console.error('Email sending failed:', emailError)
-    }
-
-    return NextResponse.json({ 
+    }    return NextResponse.json({ 
       success: true, 
       message: 'Quote request submitted successfully! We will send you a quote within 24 hours.',
       id: quote.id 
     })
   } catch (error) {
     console.error('Error submitting quote request:', error)
+    
+    // Enhanced error logging
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      })
+    } else {
+      console.error('Non-Error object:', typeof error, error)
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to submit quote request' },
+      { 
+        error: 'Failed to submit quote request',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        type: typeof error
+      },
       { status: 500 }
     )
   }

@@ -4,16 +4,21 @@ import nodemailer from 'nodemailer'
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Contact API: Request received')
     const body = await request.json()
+    console.log('Contact API: Body parsed:', { name: body.name, email: body.email, hasMessage: !!body.message })
+    
     const { name, email, phone, company, message } = body
 
     if (!name || !email || !message) {
+      console.log('Contact API: Validation failed', { name: !!name, email: !!email, message: !!message })
       return NextResponse.json(
         { error: 'Name, email, and message are required' },
         { status: 400 }
       )
     }
 
+    console.log('Contact API: Creating contact in simpleDB...')
     // Save to simpleDB
     const contact = simpleDB.contacts.create({
       name,
@@ -22,6 +27,8 @@ export async function POST(request: NextRequest) {
       company: company || undefined,
       message
     })
+    
+    console.log('Contact API: Contact created successfully:', contact.id)
 
         // Send email notification (only if email config exists)
     try {

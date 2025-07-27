@@ -237,7 +237,7 @@ export default function CheckoutPage() {
                 <div className="space-y-3">
                   {items.map((item) => (
                     <div key={item.id} className="flex items-center space-x-3">
-                      <Image src={item.image} alt={item.name} width={50} height={50} className="rounded" />
+                      <Image src={item.image || '/placeholder.jpg'} alt={item.name} width={50} height={50} className="rounded" />
                       <div className="flex-grow">
                         <p className="font-medium text-[#2F5233]">{item.name}</p>
                         <p className="text-sm text-[#5A6B5D]">Qty: {item.quantity}</p>

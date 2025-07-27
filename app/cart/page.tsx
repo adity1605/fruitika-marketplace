@@ -27,7 +27,14 @@ export default function CartPage() {
       <header className="bg-[#f9f4e7]/80 backdrop-blur-[2px] border-b border-[#8FBC8F]/20 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <Image src="/images/ChatGPT_Image_Jul_24__2025__04_18_40_PM-removebg-preview.png" alt="Fruitika" width={300} height={90} className="h-24 w-auto" />
+            <Image 
+              src="/images/ChatGPT_Image_Jul_24__2025__04_18_40_PM-removebg-preview.png" 
+              alt="Fruitika" 
+              width={300} 
+              height={90} 
+              className="h-24" 
+              style={{ width: 'auto' }}
+            />
           </Link>
           <nav className="hidden md:flex space-x-8">
             <Link href="/" className="text-[#2F5233] hover:text-[#2F5233] transition-colors">Home</Link>
@@ -56,34 +63,54 @@ export default function CartPage() {
         ) : (
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
-              {cartItems.map((item) => (
-                <Card key={item.id} className="border-[#8FBC8F]/20 bg-[#fefcf5]">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <Image src={item.image} alt={item.name} width={80} height={80} className="rounded-lg" />
-                      <div className="flex-grow">
-                        <h3 className="text-xl font-semibold text-[#2F5233]">{item.name}</h3>
-                        <p className="text-[#5A6B5D]">${item.price} per kg</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Button variant="outline" size="sm" onClick={() => handleUpdateQuantity(item.id, -1)}>
-                          <Minus className="w-4 h-4" />
+              {cartItems.map((item) => {
+                // Ensure item has all required properties
+                const safeItem = {
+                  id: item?.id || 0,
+                  name: item?.name || 'Unknown Product',
+                  price: item?.price || 0,
+                  quantity: item?.quantity || 1,
+                  image: item?.image || '/placeholder.jpg'
+                }
+                
+                return (
+                  <Card key={safeItem.id} className="border-[#8FBC8F]/20 bg-[#fefcf5]">
+                    <CardContent className="p-6">
+                      <div className="flex items-center space-x-4">
+                        <Image 
+                          src={safeItem.image} 
+                          alt={safeItem.name} 
+                          width={80} 
+                          height={80} 
+                          className="rounded-lg"
+                          onError={(e) => {
+                            e.currentTarget.src = '/placeholder.jpg'
+                          }}
+                        />
+                        <div className="flex-grow">
+                          <h3 className="text-xl font-semibold text-[#2F5233]">{safeItem.name}</h3>
+                          <p className="text-[#5A6B5D]">${safeItem.price} per kg</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button variant="outline" size="sm" onClick={() => handleUpdateQuantity(safeItem.id, -1)}>
+                            <Minus className="w-4 h-4" />
+                          </Button>
+                          <span className="px-4 py-2 font-semibold">{safeItem.quantity}</span>
+                          <Button variant="outline" size="sm" onClick={() => handleUpdateQuantity(safeItem.id, 1)}>
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <div className="text-xl font-bold text-[#2F5233] min-w-[80px]">
+                          ${(safeItem.price * safeItem.quantity).toFixed(2)}
+                        </div>
+                        <Button variant="outline" size="sm" onClick={() => removeFromCart(safeItem.id)} className="text-red-600 hover:text-red-700">
+                          <Trash2 className="w-4 h-4" />
                         </Button>
-                        <span className="px-4 py-2 font-semibold">{item.quantity}</span>
-                        <Button variant="outline" size="sm" onClick={() => handleUpdateQuantity(item.id, 1)}>
-                          <Plus className="w-4 h-4" />
-                        </Button>
                       </div>
-                      <div className="text-xl font-bold text-[#2F5233] min-w-[80px]">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </div>
-                      <Button variant="outline" size="sm" onClick={() => removeFromCart(item.id)} className="text-red-600 hover:text-red-700">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                )
+              })}
             </div>
 
             <div>

@@ -34,8 +34,9 @@ export default function Navigation() {
               src="/images/ChatGPT_Image_Jul_24__2025__04_18_40_PM-removebg-preview.png" 
               alt="Fruitika" 
               width={200} 
-              height={60} 
-              className="h-16 w-auto sm:h-20" 
+              height={80} 
+              className="h-16 sm:h-20" 
+              style={{ width: 'auto' }}
             />
           </Link>
 
@@ -124,9 +125,9 @@ export default function Navigation() {
           {mobileMenuOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
+              animate={{ opacity: 1, height: 200 }}
               exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden mt-4 pb-4 border-t border-[#8FBC8F]/20"
+              className="lg:hidden mt-4 pb-4 border-t border-[#8FBC8F]/20 overflow-hidden"
             >
               <nav className="flex flex-col space-y-4 mt-4">
                 {navLinks.map((link) => (

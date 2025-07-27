@@ -280,7 +280,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       id: parseInt(productWithDefaults.id) || 1,
                       name: productWithDefaults.name,
                       price: productWithDefaults.price,
-                      image: productWithDefaults.images[0],
+                      image: productWithDefaults.images[0] || '/placeholder.jpg',
                       quantity
                     })
                   }}

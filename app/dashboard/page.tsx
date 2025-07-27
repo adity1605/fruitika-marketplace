@@ -70,7 +70,14 @@ export default function DashboardPage() {
       <header className="bg-[#f9f4e7]/80 backdrop-blur-[2px] border-b border-[#8FBC8F]/20">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <Image src="/images/ChatGPT_Image_Jul_24__2025__04_18_40_PM-removebg-preview.png" alt="Fruitika" width={300} height={90} className="h-24 w-auto" />
+            <Image 
+              src="/images/ChatGPT_Image_Jul_24__2025__04_18_40_PM-removebg-preview.png" 
+              alt="Fruitika" 
+              width={300} 
+              height={90} 
+              className="h-24" 
+              style={{ width: 'auto' }}
+            />
           </Link>
           <Button variant="outline" className="border-[#8FBC8F] text-[#2F5233]" asChild>
             <Link href="/">Back to Store</Link>

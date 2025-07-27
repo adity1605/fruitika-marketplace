@@ -66,7 +66,14 @@ export default function ProductsPage() {
       <header className="bg-transparent backdrop-blur-sm border-b border-[#8FBC8F]/20 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <Image src="/images/ChatGPT_Image_Jul_24__2025__04_18_40_PM-removebg-preview.png" alt="Fruitika" width={300} height={90} className="h-24 w-auto" />
+            <Image 
+              src="/images/ChatGPT_Image_Jul_24__2025__04_18_40_PM-removebg-preview.png" 
+              alt="Fruitika" 
+              width={300} 
+              height={90} 
+              className="h-24" 
+              style={{ width: 'auto' }}
+            />
           </Link>
           <nav className="hidden md:flex space-x-8">
             <Link href="/" className="text-[#2F5233] hover:text-[#2F5233] transition-colors">

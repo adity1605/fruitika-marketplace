@@ -52,16 +52,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, isLoaded])
 
   const addToCart = (newItem: Omit<CartItem, "quantity"> & { quantity?: number }) => {
+    // Ensure all required fields exist with proper fallbacks
+    const itemWithDefaults: CartItem = {
+      id: newItem.id || Date.now(),
+      name: newItem.name || 'Unknown Product',
+      price: Number(newItem.price) || 0,
+      image: newItem.image || '/placeholder.jpg',
+      quantity: Number(newItem.quantity) || 1
+    }
+    
     setItems(currentItems => {
-      const existingItem = currentItems.find(item => item.id === newItem.id)
+      const existingItem = currentItems.find(item => item.id === itemWithDefaults.id)
       if (existingItem) {
         return currentItems.map(item =>
-          item.id === newItem.id
-            ? { ...item, quantity: item.quantity + (newItem.quantity || 1) }
+          item.id === itemWithDefaults.id
+            ? { ...item, quantity: item.quantity + itemWithDefaults.quantity }
             : item
         )
       }
-      return [...currentItems, { ...newItem, quantity: newItem.quantity || 1 }]
+      return [...currentItems, itemWithDefaults]
     })
   }
 
