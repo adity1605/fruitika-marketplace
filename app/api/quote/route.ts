@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { simpleDB } from '@/lib/simpleDB'
+import { simpleDB } from '../../../lib/simpleDB'
 import nodemailer from 'nodemailer'
 
 export async function GET() {
